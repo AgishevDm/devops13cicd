@@ -1,44 +1,38 @@
-name: Publish Docker image
-
+name: CD Pipeline
 on:
   push:
-    branches: [ main ]
+    branches: [master]
 
 permissions:
   contents: write
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
-    runs-on: ubuntu-24.04
+  push-to-dockerhub:
+    runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-
-      - name: Log in to Docker Hub
+      - uses: actions/checkout@v4
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Build and push Docker image
-        id: push
+      - name: Build and Push
         uses: docker/build-push-action@v6
         with:
-          context: ./server/
+          context: ./server
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/devops-psu:latest 
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops-psu:latest
 
-  touch-k8s-manifest:
-    needs: [ push_to_registry ]
-    runs-on: ubuntu-24.04
+  update-manifest:
+    needs: [push-to-dockerhub]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Insert release date
-        run: 'sed -i "s/release-date: .*$/release-date: s`date +%s`/g" ./server-k8s-manifests/devops-lab.yml'
-
-      - name: Commit manifest
+      - name: Update release date
+        run: sed -i "s/release-date: .*/release-date: $(date +%s)/g" ./server-k8s-manifests/devops-psu.yml
+      - name: Commit and Push
         run: |
+          git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add ./server-k8s-manifests/devops-psu.yml
           git commit -m "Update release date"
