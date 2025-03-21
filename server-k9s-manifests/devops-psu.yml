@@ -1,5 +1,4 @@
 ---
-# Deployment для запуска приложения
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,7 +24,6 @@ spec:
           ports:
             - containerPort: 8000
 ---
-# Service для доступа к приложению
 apiVersion: v1
 kind: Service
 metadata:
