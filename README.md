@@ -1,4 +1,4 @@
-# devops13cicd
+# CI/CD, Github Actions, ArgoCD
 CI/CD, Github Actions, ArgoCD : непрерывная интеграция,
  развертывание и доставка
 
