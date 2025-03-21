@@ -1,4 +1,4 @@
-name: CD Pipeline
+name: CD Pipeline Push Docker image to Docker Hub
 
 on:
   push:
